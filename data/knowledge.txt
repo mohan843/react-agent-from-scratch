@@ -1,0 +1,6 @@
+ReAct means Reasoning and Acting. A ReAct agent alternates between reasoning about a task, taking an action with a tool, and observing the tool result.
+A tool-using agent can call a calculator for arithmetic, search a knowledge source, or read a local file instead of guessing.
+The agent loop stops when the model returns a final answer or when a maximum step limit is reached.
+Tool outputs are observations. The model should ground its final answer in those observations and should not claim a tool succeeded when it did not.
+A safe calculator parses arithmetic syntax and allows only numeric constants and approved operators, rather than executing arbitrary Python code.
+Retrieval augmented generation (RAG) searches source documents and uses retrieved passages to provide grounded answers, often with citations.

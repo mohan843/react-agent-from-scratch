@@ -1,21 +1,11 @@
 # ReAct Agent from Scratch
 
-A dependency-free Python implementation of the ReAct (Reasoning + Acting) agent loop. It lets a model choose a tool, records the tool result as an observation, and continues until the model returns a final answer or the step limit is reached. Included tools are a safe arithmetic calculator, keyword search over a bundled knowledge file, and a sandboxed local file reader.
-
-## Features
-
-- Explicit action/observation trace for every tool call.
-- Offline demo mode that runs without an API key or network access.
-- Optional OpenAI-compatible chat-completions adapter, configured through environment variables.
-- Arithmetic evaluation via a restricted Python AST, not `eval()`.
-- File reads are restricted to the bundled `data/` directory.
-- Standard-library-only tests.
+A mini-project implementing the ReAct (Reasoning + Acting) loop in plain Python. The agent picks a tool, records its observation, and then produces a grounded answer. It includes a deterministic offline demo model plus three local tools: a safe calculator, keyword search over sample knowledge, and a data-file reader.
 
 ## Requirements
 
-- Python 3.10 or newer.
-- No third-party packages are needed for the offline demo or tests.
-- Optional API mode needs an API key for the chosen OpenAI-compatible service.
+- Python 3.10 or newer
+- No third-party packages required
 
 ## Setup
 
@@ -30,29 +20,20 @@ python -m pip install -r requirements.txt
 
 ## Usage
 
-Run the offline demo (default):
+Run a question against the bundled knowledge file:
 
 ```bash
 python react_agent.py
+python react_agent.py "How does a ReAct agent use tools?"
 ```
 
-Ask a different question. The bundled corpus is searched when the demo model selects `search`; simple arithmetic questions use the calculator:
+Try calculator tool selection:
 
 ```bash
-python react_agent.py "How does a ReAct agent use tools?"
 python react_agent.py "What is 12 * (3 + 1)?"
 ```
 
-The output is JSON containing the final answer and the full action/input/observation trace. To use an OpenAI-compatible model instead, set configuration and enable API mode:
-
-```bash
-export OPENAI_API_KEY="your-key"
-export OPENAI_MODEL="gpt-4o-mini"        # optional
-export OPENAI_BASE_URL="https://api.openai.com/v1"  # optional
-python react_agent.py --api "Search the knowledge file for ReAct"
-```
-
-The model must follow the prompt contract and return a JSON object per turn, either ` {"action":"tool_name","input":"..."}` or ` {"final":"..."}`. Tool names: `calculator`, `search`, and `read_file`. Set a different maximum tool count with `--max-steps 3`.
+The command prints JSON with an answer and an action/input/observation trace. The offline demo requires no API key or network. `--max-steps 3` changes the maximum number of tool actions.
 
 ## Tests
 
@@ -60,17 +41,13 @@ The model must follow the prompt contract and return a JSON object per turn, eit
 python -m unittest discover -s tests -v
 ```
 
-## Project layout
+## Files
 
-```text
-react-agent-from-scratch/
-├── data/knowledge.txt
-├── tests/test_react_agent.py
-├── react_agent.py
-├── requirements.txt
-└── README.md
-```
+- `react_agent.py`: agent loop, three tools, and command-line entry point.
+- `data/knowledge.txt`: sample source text for local retrieval.
+- `tests/test_react_agent.py`: unit tests for tools, safety, and agent behavior.
+- `requirements.txt`: documents that there are no external dependencies.
 
-## Safety note
+## Safety
 
-The included file reader only accesses files inside `data/`. The calculator accepts numeric literals and a small set of arithmetic operators. API mode sends the prompt (which includes the question and tool observations) to the provider configured by you; never include secrets in a question.
+Arithmetic is evaluated with a restricted AST, not `eval()`. File reads are confined to the bundled `data/` directory. This project uses a deterministic local demo policy; replace `DemoModel` with your own model adapter to connect an LLM.
